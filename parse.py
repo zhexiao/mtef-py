@@ -3,45 +3,62 @@ from enum import Enum
 latex_fmt = {
     'char_list': [
         "#line#",
-        "2",
-        ".",
-        "1",
         "3",
-        "1",
-        "3",
-        "≈",
-        "2",
-        ".",
-        "1",
+        "4",
+        "%",
+        "×",
+        "#tmpl#",
+        "#line#",
+        "4",
+        "#end#",
+        "#line#",
+        "7",
+        "#end#",
+        "#end#",
+        "=",
         "#end#",
         "#end#"
     ],
-    'tmpl_format': [],
+    'tmpl_format': [
+        "\\frac {#M_1}  {#M_2} "
+    ],
     'typeface_format': [
         "",
         "",
         "",
         "",
-        "",
-        "",
         ""
-    ]}
+    ]
+}
 
 
 class Latex:
+    """
+    Latex对象
+    """
     def __init__(self, mt_type, mt_val=None):
         self.mt_type = mt_type
         self.mt_val = mt_val
 
         self.data = []
 
+# Latex需要转义的特殊符号
+LATEX_SPECIAL_CHAR = [
+    '%'
+]
 
 class MtPrefix(Enum):
+    """
+    Mathtype 自定义前缀
+    """
     # 从1开始
     selector = '#M_'
 
 
 class MtType(Enum):
+    """
+    Mathtype 自定义类型
+    """
     line = '#line#'
     char = '#char#'
     tmpl = '#tmpl#'
@@ -49,6 +66,11 @@ class MtType(Enum):
 
 
 def format_latex(char_list):
+    """
+    出栈入栈算法实现
+    :param char_list:
+    :return:
+    """
     stack_list = []
     latex_obj = None
     for idx, char in enumerate(char_list):
@@ -83,6 +105,11 @@ def format_latex(char_list):
 
 def parse_latex(latex_obj, tmpl_fmt_list):
     def read_line_data(line_data):
+        """
+        组装数据
+        :param line_data:
+        :return:
+        """
         if len(line_data) == 0:
             return
 
@@ -92,11 +119,19 @@ def parse_latex(latex_obj, tmpl_fmt_list):
                 ltx_str = read_latex_obj(dt)
                 tmp_line_str += ltx_str
             else:
+                if dt in LATEX_SPECIAL_CHAR:
+                    dt = "\{0}".format(dt)
+
                 tmp_line_str += dt
 
         return tmp_line_str
 
     def read_tmpl_data(tmpl_data):
+        """
+        组装公式
+        :param tmpl_data:
+        :return:
+        """
         if len(tmpl_data) == 0:
             return
 
@@ -104,7 +139,7 @@ def parse_latex(latex_obj, tmpl_fmt_list):
 
         tmpl_fmt_item = {}
         for idx, dt in enumerate(tmpl_data):
-            fmt_item_key = '{0}{1}'.format(MtPrefix.selector.value, idx+1)
+            fmt_item_key = '{0}{1}'.format(MtPrefix.selector.value, idx + 1)
 
             if isinstance(dt, (Latex,)):
                 ltx_str = read_latex_obj(dt)
@@ -112,10 +147,16 @@ def parse_latex(latex_obj, tmpl_fmt_list):
             else:
                 tmpl_fmt_item[fmt_item_key] = dt
 
+        print(tmpl_fmt_item, tmpl_fmt_str)
         tmpl_str = tmpl_fmt_str.format(**tmpl_fmt_item)
         return tmpl_str
 
     def read_latex_obj(latex_obj):
+        """
+        转发条件
+        :param latex_obj:
+        :return:
+        """
         if not isinstance(latex_obj, (Latex)):
             raise ValueError('需要Latex对象')
 
