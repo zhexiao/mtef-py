@@ -3,31 +3,26 @@ from enum import Enum
 latex_fmt = {
     'char_list': [
         "#line#",
-        "3",
-        "4",
-        "%",
-        "×",
         "#tmpl#",
         "#line#",
-        "4",
         "#end#",
-        "#line#",
-        "7",
+        "(",
+        ")",
         "#end#",
-        "#end#",
-        "=",
+        " ",
+        ">",
+        " ",
+        "5",
+        "6",
         "#end#",
         "#end#"
     ],
     'tmpl_format': [
-        "\\frac {#M_1}  {#M_2} "
+        "\\left{#M_2} {#M_1} \\right{#M_3}"
     ],
     'typeface_format': [
         "",
-        "",
-        "",
-        "",
-        ""
+        "{ \\rm{ #TF_1 } }"
     ]
 }
 
@@ -143,6 +138,9 @@ def parse_latex(latex_obj, tmpl_fmt_list):
 
             if isinstance(dt, (Latex,)):
                 ltx_str = read_latex_obj(dt)
+                if ltx_str is None:
+                    ltx_str = ""
+
                 tmpl_fmt_item[fmt_item_key] = ltx_str
             else:
                 tmpl_fmt_item[fmt_item_key] = dt
